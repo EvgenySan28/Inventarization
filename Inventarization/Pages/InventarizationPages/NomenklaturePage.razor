@@ -2,8 +2,8 @@
 @inject Data.DB.MyDbContext db
 @using Data.DB.entities
 
-<h3>Nomenklature</h3>
-<DataGrid TItem="Nomenclature" PageSize="50" ShowPager="true" Data="@context" Editable="true" EditMode="Blazorise.DataGrid.DataGridEditMode.Inline"
+<h3>Заполнение номенклатуры</h3>
+<DataGrid TItem="Nomenclature" PageSize="15" ShowPager="@showPaginator"  Data="@context" Editable="true" EditMode="Blazorise.DataGrid.DataGridEditMode.Inline"
           RowInserted="RowCreate"
           RowRemoved="RowDelete"
           RowUpdated="RowUpdate">
@@ -51,10 +51,15 @@
 @code {
     List<Nomenclature> context;
     List<Room> Rooms;
+    bool showPaginator = false;
     protected override void OnInitialized()
     {
         context = db.Nomenclatures.Include(s => s.Room).ToList();
         Rooms = db.Rooms.ToList();
+        if (context.Count>15)
+        {
+            showPaginator = true;
+        }
     }
     void RowCreate(SavedRowItem<Nomenclature, Dictionary<string, object>> data)
     {

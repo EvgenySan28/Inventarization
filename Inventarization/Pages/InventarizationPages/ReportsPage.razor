@@ -2,8 +2,8 @@
 @inject Data.DB.MyDbContext db
 @using Data.DB.entities
 
-<h3>ReportsPage</h3>
-    <div class="input-group mb-3">
+<h3>Страница отчетов</h3>
+    <div class="input-group mb-3 noprint">
         <div class="input-group-prepend">
             <span class="input-group-text">Отбор по комнате</span>
         </div>
@@ -26,9 +26,10 @@
                                              TextField="@((s)=>s.Name +" "+s.LastName)">
             </Blazorise.Components.SelectList>
         </div>
-        <input type="button" name="name" value="Сбросить отбор" @onclick ="OnInitialized" />
+        <input  type="button" name="name" value="Сбросить отбор" @onclick ="OnInitialized" />
     </div>
-<DataGrid TItem="Nomenclature" PageSize="50" ShowPager="true" Data="@context" Editable="false">
+    <input type="button" class="btn-info noprint" onclick="window.print()" name="name" value="Распечатать" />
+<DataGrid TItem="Nomenclature" PageSize="30" ShowPager="@showPaginator"  Data="@context" Editable="false" >
     <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Name)" Caption="Наименование" Sortable="true"></DataGridColumn>
     <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.SerialNumber)" Caption="Серийный номер" Sortable="true"></DataGridColumn>
     <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Сondition)" Caption="Состояние" Sortable="true"></DataGridColumn>
@@ -64,11 +65,18 @@
     List<Responsible> Responsibles;
     int SelectedRoom { get; set; }
     int SelectedResponsible { get; set; }
+    bool showPaginator = false;
+
     protected override void OnInitialized()
     {
         context = db.Nomenclatures.Include(s => s.Room).Include(s => s.Room.Responsible).ToList();
         Rooms = db.Rooms.ToList();
         Responsibles = db.Responsibles.ToList();
+        if (context.Count > 30)
+        {
+            showPaginator = true;
+        }
+
     }
     protected override void OnAfterRender(bool firstRender)
     {

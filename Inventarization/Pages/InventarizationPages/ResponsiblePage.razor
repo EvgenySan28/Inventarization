@@ -3,8 +3,8 @@
 @using Data.DB.entities
 
 
-<h3>Responsible</h3>
-<DataGrid TItem="Responsible" Data=@Responsibles Editable="true" RowInserted="RowCreate"
+<h3>Заполнение ответственных лиц</h3>
+<DataGrid TItem="Responsible" PageSize="15" ShowPager="@showPaginator" Data=@Responsibles Editable="true" RowInserted="RowCreate"
           RowRemoved="RowDelete"
           RowUpdated="RowUpdate">
     <DataGridCommandColumn TItem="Responsible" />
@@ -14,9 +14,16 @@
 
 @code {
     List<Responsible> Responsibles;
+    bool showPaginator = false;
+
     protected override void OnInitialized()
     {
         Responsibles = db.Responsibles.ToList();
+        if (Responsibles.Count > 15)
+        {
+            showPaginator = true;
+        }
+
     }
     void RowCreate(SavedRowItem<Responsible, Dictionary<string, object>> data)
     {
