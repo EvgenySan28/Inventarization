@@ -11,6 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 
 namespace Inventarization
 {
@@ -29,6 +32,10 @@ namespace Inventarization
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddBlazorise(options =>
+                {
+                    options.ChangeTextOnKeyPress = true; // optional
+                }).AddBootstrapProviders().AddFontAwesomeIcons();
             services.AddDbContext<Data.DB.MyDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("MyDb")), ServiceLifetime.Scoped);
         }
 

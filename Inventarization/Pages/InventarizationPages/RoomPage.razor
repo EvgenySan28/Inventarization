@@ -1,0 +1,73 @@
+﻿@page "/Room"
+@inject Data.DB.MyDbContext db
+@using Data.DB.entities
+
+<h3>Room</h3>
+<DataGrid TItem="Room" PageSize="50" ShowPager="true" Data="@context" Editable="true" EditMode="Blazorise.DataGrid.DataGridEditMode.Inline"
+          RowInserted="RowCreate"
+          RowRemoved="RowDelete"
+          RowUpdated="RowUpdate">
+    <DataGridCommandColumn TItem="Room" />
+    <DataGridColumn TItem="Room" Field="@nameof(Room.Name)" Caption="Наименование" Editable="true" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Room" Field="@nameof(Room.ResponsibleID)" Caption="Ответственный" Editable="true" Sortable="true">
+        <DisplayTemplate>
+            @if (context.Responsible != null)
+            {
+                @(context.Responsible.Name + " "+ context.Responsible.LastName)
+            }
+            else
+            {
+                <p>Комната не имеет ответственного!</p>
+            }
+        </DisplayTemplate>
+        <EditTemplate>
+            @if (Responsibles.Count != 0)
+            {
+                if (context.CellValue == null)
+                {
+                    context.CellValue = Responsibles[0].ResponsibleID;
+                }
+                <Blazorise.Components.SelectList Data="@Responsibles" TItem="Responsible" TValue="int"
+                                                 SelectedValue="@(Convert.ToInt32(context.CellValue))"
+                                                 SelectedValueChanged="@(v=>((CellEditContext)context).CellValue=Convert.ToInt32(v))"
+                                                 ValueField="@(s=>s.ResponsibleID)"
+                                                 TextField="@(s=>s.Name +" "+s.LastName)">
+                </Blazorise.Components.SelectList>
+
+            }
+            else
+            {
+                <NavLink href="Responsible">
+                    Сначала надо заполнить
+                </NavLink>
+            }
+        </EditTemplate>
+    </DataGridColumn>
+
+</DataGrid>
+@code {
+    List<Room> context;
+    List<Responsible> Responsibles;
+    protected override void OnInitialized()
+    {
+        ShouldRender();
+        context = db.Rooms.Include(s => s.Responsible).ToList();
+        Responsibles = db.Responsibles.ToList();
+    }
+
+    void RowCreate(SavedRowItem<Room, Dictionary<string, object>> data)
+    {
+        db.Rooms.Add(data.Item);
+        db.SaveChanges();
+    }
+    void RowDelete(Room room)
+    {
+        db.Rooms.Remove(room);
+        db.SaveChanges();
+    }
+    void RowUpdate(SavedRowItem<Room, Dictionary<string, object>> savedRow)
+    {
+        db.Rooms.Update(savedRow.Item);
+        db.SaveChanges();
+    }
+}

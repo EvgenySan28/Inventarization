@@ -11,7 +11,7 @@ namespace Inventarization.Data.DB.entities
         public string Name { get; set; }
         public int? ResponsibleID { get; set; }
         public Responsible Responsible { get; set; }
-        List<Nomenclature> Nomenclatures { get; set; }
+        public List<Nomenclature> Nomenclatures { get; set; }
         public Room()
         {
             Nomenclatures = new List<Nomenclature>();

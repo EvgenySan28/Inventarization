@@ -10,7 +10,7 @@ namespace Inventarization.Data.DB.entities
         public int ResponsibleID { get; set; }
         public string Name { get; set; }
         public string LastName { get; set; }
-        List<Room> Rooms { get; set; }
+        public List<Room> Rooms { get; set; }
         public Responsible()
         {
             Rooms = new List<Room>();

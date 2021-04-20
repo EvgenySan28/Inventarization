@@ -1,0 +1,36 @@
+﻿@page "/Responsible"
+@inject Data.DB.MyDbContext db
+@using Data.DB.entities
+
+
+<h3>Responsible</h3>
+<DataGrid TItem="Responsible" Data=@Responsibles Editable="true" RowInserted="RowCreate"
+          RowRemoved="RowDelete"
+          RowUpdated="RowUpdate">
+    <DataGridCommandColumn TItem="Responsible" />
+    <DataGridColumn TItem="Responsible" Field="@nameof(Responsible.Name)" Caption="Имя" Editable="true" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Responsible" Field="@nameof(Responsible.LastName)" Caption="Фамилия" Editable="true" Sortable="true"></DataGridColumn>
+</DataGrid>
+
+@code {
+    List<Responsible> Responsibles;
+    protected override void OnInitialized()
+    {
+        Responsibles = db.Responsibles.ToList();
+    }
+    void RowCreate(SavedRowItem<Responsible, Dictionary<string, object>> data)
+    {
+        db.Responsibles.Add(data.Item);
+        db.SaveChanges();
+    }
+    void RowDelete(Responsible resp)
+    {
+        db.Responsibles.Remove(resp);
+        db.SaveChanges();
+    }
+    void RowUpdate(SavedRowItem<Responsible, Dictionary<string, object>> savedRow)
+    {
+        db.Responsibles.Update(savedRow.Item);
+        db.SaveChanges();
+    }
+}

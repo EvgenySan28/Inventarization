@@ -1,0 +1,74 @@
+﻿@page "/Nomenklature"
+@inject Data.DB.MyDbContext db
+@using Data.DB.entities
+
+<h3>Nomenklature</h3>
+<DataGrid TItem="Nomenclature" PageSize="50" ShowPager="true" Data="@context" Editable="true" EditMode="Blazorise.DataGrid.DataGridEditMode.Inline"
+          RowInserted="RowCreate"
+          RowRemoved="RowDelete"
+          RowUpdated="RowUpdate">
+    <DataGridCommandColumn TItem="Nomenclature" />
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Name)" Caption="Наименование" Editable="true" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.SerialNumber)" Caption="Серийный номер" Editable="true" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Сondition)" Caption="Состояние" Editable="true" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.RoomID)" Caption="Комната" Editable="true" Sortable="true">
+        <DisplayTemplate>
+            @if (context.Room != null)
+            {
+                @(context.Room.Name)
+            }
+            else
+            {
+                <p>Номенклатура не привязана к комнате!</p>
+            }
+        </DisplayTemplate>
+        <EditTemplate>
+            @if (Rooms.Count != 0)
+            {
+                if (context.CellValue == null)
+                {
+                    context.CellValue = Rooms[0].RoomID;
+                }
+                <Blazorise.Components.SelectList Data="@Rooms" TItem="Room" TValue="int"
+                                                 SelectedValue="@(Convert.ToInt32(context.CellValue))"
+                                                 SelectedValueChanged="@(v=>((CellEditContext)context).CellValue=Convert.ToInt32(v))"
+                                                 ValueField="@(s=>s.RoomID)"
+                                                 TextField="@(s=>s.Name)">
+                </Blazorise.Components.SelectList>
+
+            }
+            else
+            {
+                <NavLink href="Room">
+                    Сначала надо заполнить
+                </NavLink>
+            }
+        </EditTemplate>
+    </DataGridColumn>
+
+</DataGrid>
+
+@code {
+    List<Nomenclature> context;
+    List<Room> Rooms;
+    protected override void OnInitialized()
+    {
+        context = db.Nomenclatures.Include(s => s.Room).ToList();
+        Rooms = db.Rooms.ToList();
+    }
+    void RowCreate(SavedRowItem<Nomenclature, Dictionary<string, object>> data)
+    {
+        db.Nomenclatures.Add(data.Item);
+        db.SaveChanges();
+    }
+    void RowDelete(Nomenclature nom)
+    {
+        db.Nomenclatures.Remove(nom);
+        db.SaveChanges();
+    }
+    void RowUpdate(SavedRowItem<Nomenclature, Dictionary<string, object>> savedRow)
+    {
+        db.Nomenclatures.Update(savedRow.Item);
+        db.SaveChanges();
+    }
+}
