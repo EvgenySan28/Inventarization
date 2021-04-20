@@ -1,0 +1,96 @@
+﻿@page "/Reports"
+@inject Data.DB.MyDbContext db
+@using Data.DB.entities
+
+<h3>ReportsPage</h3>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Отбор по комнате</span>
+        </div>
+        <div>
+            <Blazorise.Components.SelectList Data="Rooms" TItem="Room" TValue="int"
+                                             SelectedValue="SelectedRoom"
+                                             SelectedValueChanged="FilterRoom"
+                                             ValueField="@((s)=>s.RoomID)"
+                                             TextField="@((s)=>s.Name)">
+            </Blazorise.Components.SelectList>
+        </div>
+        <div class="input-group-prepend">
+            <span class="input-group-text">Отбор по ответственному</span>
+        </div>
+        <div>
+            <Blazorise.Components.SelectList Data="Responsibles" TItem="Responsible" TValue="int"
+                                             SelectedValue="SelectedResponsible"
+                                             SelectedValueChanged="FilterResponsible"
+                                             ValueField="@((s)=>s.ResponsibleID)"
+                                             TextField="@((s)=>s.Name +" "+s.LastName)">
+            </Blazorise.Components.SelectList>
+        </div>
+        <input type="button" name="name" value="Сбросить отбор" @onclick ="OnInitialized" />
+    </div>
+<DataGrid TItem="Nomenclature" PageSize="50" ShowPager="true" Data="@context" Editable="false">
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Name)" Caption="Наименование" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.SerialNumber)" Caption="Серийный номер" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Сondition)" Caption="Состояние" Sortable="true"></DataGridColumn>
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Room.Name)" Caption="Комната" Sortable="true">
+        <DisplayTemplate>
+            @if (context.Room != null)
+            {
+                @(context.Room.Name)
+            }
+            else
+            {
+                <p>Номенклатура не привязана к комнате!</p>
+            }
+        </DisplayTemplate>
+    </DataGridColumn>
+    <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Name)" Caption="Ответственный" Sortable="true">
+        <DisplayTemplate>
+            @if (context.Room.Responsible != null)
+            {
+                @(context.Room.Responsible.Name+" "+ context.Room.Responsible.LastName)
+            }
+            else
+            {
+                <p>Нет ответственного</p>
+            }
+        </DisplayTemplate>
+    </DataGridColumn>
+
+</DataGrid>
+@code {
+    List<Nomenclature> context;
+    List<Room> Rooms;
+    List<Responsible> Responsibles;
+    int SelectedRoom { get; set; }
+    int SelectedResponsible { get; set; }
+    protected override void OnInitialized()
+    {
+        context = db.Nomenclatures.Include(s => s.Room).Include(s => s.Room.Responsible).ToList();
+        Rooms = db.Rooms.ToList();
+        Responsibles = db.Responsibles.ToList();
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        SelectedResponsible = -1;
+        SelectedRoom = -1;
+        if (firstRender)
+        {
+            StateHasChanged();
+        }
+    }
+    void FilterRoom(int newValue)
+    {
+        SelectedRoom = newValue;
+        context = db.Nomenclatures.Where(s => s.RoomID == SelectedRoom).ToList();
+        SelectedResponsible = -1;
+    }
+    void FilterResponsible(int newValue)
+    {
+        SelectedResponsible = newValue;
+        context = db.Nomenclatures.Where(s => s.Room.ResponsibleID == SelectedResponsible).ToList();
+        SelectedRoom = -1;
+
+    }
+
+}
