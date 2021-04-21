@@ -47,7 +47,7 @@
     </DataGridColumn>
     <DataGridColumn TItem="Nomenclature" Field="@nameof(Nomenclature.Name)" Caption="Ответственный" Sortable="true">
         <DisplayTemplate>
-            @if (context.Room.Responsible != null)
+            @if (context.Room!=null && context.Room.Responsible != null)
             {
                 @(context.Room.Responsible.Name+" "+ context.Room.Responsible.LastName)
             }
