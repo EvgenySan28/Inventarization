@@ -69,9 +69,13 @@
 
     protected override void OnInitialized()
     {
+        //Заполнение листа контекст из базы
         context = db.Nomenclatures.Include(s => s.Room).Include(s => s.Room.Responsible).ToList();
+        //Заполнение листа комнаты из базы
         Rooms = db.Rooms.ToList();
+        //Заполнение листа ответственные из базы
         Responsibles = db.Responsibles.ToList();
+        //Если количество строк больше 30, показать пагинатор
         if (context.Count > 30)
         {
             showPaginator = true;
@@ -80,23 +84,40 @@
     }
     protected override void OnAfterRender(bool firstRender)
     {
+        //этот код нужен, чтобы при первом рендере странице установить селект листы на пустое значение, т.к. не полчучилось сделать
+        //красиво, чтобы при клике на уже выбранном значении (без изменения значения), применялся отбор. 
         SelectedResponsible = -1;
         SelectedRoom = -1;
         if (firstRender)
         {
+            //после первого рендера страницы, нужно еще раз перерендерить. Иначе не применяются значения
             StateHasChanged();
         }
     }
+    /// <summary>
+    /// Фильтр по комнате
+    /// </summary>
+    /// <param name="newValue"></param>
     void FilterRoom(int newValue)
     {
         SelectedRoom = newValue;
+        //Заполнение листа контекст из базы с условием, что ID комнаты равен выбранному ID
         context = db.Nomenclatures.Where(s => s.RoomID == SelectedRoom).ToList();
+        //Устанавливаем позизию -1 селект листу "ответсвенные", чтобы избежать проблемы с тем, что при выборе уже выбранного значения,
+        //не сработает отбор.
         SelectedResponsible = -1;
     }
+    /// <summary>
+    /// Фильтр по ответственному
+    /// </summary>
+    /// <param name="newValue"></param>
     void FilterResponsible(int newValue)
     {
         SelectedResponsible = newValue;
+        //Заполнение листа контекст из базы с условием, что ID ответственного равен выбранному ID
         context = db.Nomenclatures.Where(s => s.Room.ResponsibleID == SelectedResponsible).ToList();
+        //Устанавливаем позизию -1 селект листу "комнаты", чтобы избежать проблемы с тем, что при выборе уже выбранного значения,
+        //не сработает отбор.
         SelectedRoom = -1;
 
     }

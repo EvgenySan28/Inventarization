@@ -52,26 +52,39 @@
 
     protected override void OnInitialized()
     {
-        ShouldRender();
+        //Заполняем лист контекст из базы
         context = db.Rooms.Include(s => s.Responsible).ToList();
+        //Заполняем лист ответственные из базы
         Responsibles = db.Responsibles.ToList();
+        //Если строк больше 15, то показать пагинатор
         if (context.Count > 15)
         {
             showPaginator = true;
         }
 
     }
-
+    /// <summary>
+    /// При добавлении строки
+    /// </summary>
+    /// <param name="data"></param>
     void RowCreate(SavedRowItem<Room, Dictionary<string, object>> data)
     {
         db.Rooms.Add(data.Item);
         db.SaveChanges();
     }
+    /// <summary>
+    /// При удалении строки
+    /// </summary>
+    /// <param name="room"></param>
     void RowDelete(Room room)
     {
         db.Rooms.Remove(room);
         db.SaveChanges();
     }
+    /// <summary>
+    /// При изменении строки
+    /// </summary>
+    /// <param name="savedRow"></param>
     void RowUpdate(SavedRowItem<Room, Dictionary<string, object>> savedRow)
     {
         db.Rooms.Update(savedRow.Item);

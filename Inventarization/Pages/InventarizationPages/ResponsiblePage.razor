@@ -18,23 +18,37 @@
 
     protected override void OnInitialized()
     {
+        //Заполняем лист Ответственные из базы
         Responsibles = db.Responsibles.ToList();
+        //Если строк больше 15, то показать пагинатор
         if (Responsibles.Count > 15)
         {
             showPaginator = true;
         }
 
     }
+    /// <summary>
+    /// При создании строки
+    /// </summary>
+    /// <param name="data"></param>
     void RowCreate(SavedRowItem<Responsible, Dictionary<string, object>> data)
     {
         db.Responsibles.Add(data.Item);
         db.SaveChanges();
     }
+    /// <summary>
+    /// При удалении строки
+    /// </summary>
+    /// <param name="resp"></param>
     void RowDelete(Responsible resp)
     {
         db.Responsibles.Remove(resp);
         db.SaveChanges();
     }
+    /// <summary>
+    /// При изменении строки
+    /// </summary>
+    /// <param name="savedRow"></param>
     void RowUpdate(SavedRowItem<Responsible, Dictionary<string, object>> savedRow)
     {
         db.Responsibles.Update(savedRow.Item);

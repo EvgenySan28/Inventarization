@@ -54,23 +54,38 @@
     bool showPaginator = false;
     protected override void OnInitialized()
     {
+        //Заполнение листа контекст
         context = db.Nomenclatures.Include(s => s.Room).ToList();
+        //Заполнение листа комнаты
         Rooms = db.Rooms.ToList();
+        //Если строк больше 15, то показать пагинатор
         if (context.Count>15)
         {
             showPaginator = true;
         }
     }
+    /// <summary>
+    /// При создании строки
+    /// </summary>
+    /// <param name="data"></param>
     void RowCreate(SavedRowItem<Nomenclature, Dictionary<string, object>> data)
     {
         db.Nomenclatures.Add(data.Item);
         db.SaveChanges();
     }
+    /// <summary>
+    /// При удалении строки
+    /// </summary>
+    /// <param name="nom"></param>
     void RowDelete(Nomenclature nom)
     {
         db.Nomenclatures.Remove(nom);
         db.SaveChanges();
     }
+    /// <summary>
+    /// При изменении строки
+    /// </summary>
+    /// <param name="nom"></param>
     void RowUpdate(SavedRowItem<Nomenclature, Dictionary<string, object>> savedRow)
     {
         db.Nomenclatures.Update(savedRow.Item);
